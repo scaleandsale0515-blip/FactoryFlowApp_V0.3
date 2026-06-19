@@ -239,4 +239,91 @@ class ExcelService {
     s = await Permission.storage.request();
     return s.isGranted;
   }
+
+  Future<void> appendInvoice(Map<String, dynamic> inv, List<Map<String, dynamic>> items) async {
+  await checkAndRotate();
+  final path = await _activePath();
+  if (path == null) return;
+
+  final excel = await _readFile(path);
+  if (excel == null) return;
+
+  final sheet = excel['Invoices'];
+
+  for (var i in items) {
+    sheet.appendRow([
+      inv['invoice_number'],
+      inv['date'],
+      inv['customer_name'],
+      i['service_name'],
+      i['quantity'],
+      i['unit'],
+      i['rate'],
+      i['amount'],
+      inv['gst_percent'],
+      inv['total'],
+    ]);
+  }
+
+  await _writeToFile(path, excel);
+}
+
+ Future<void> appendQuotation(Map<String, dynamic> q, List<Map<String, dynamic>> items) async {
+  await checkAndRotate();
+  final path = await _activePath();
+  if (path == null) return;
+
+  final excel = await _readFile(path);
+  if (excel == null) return;
+
+  final sheet = excel['Quotations'];
+
+  for (var i in items) {
+    sheet.appendRow([
+      q['quote_number'],
+      q['date'],
+      q['customer_name'],
+      i['service_name'],
+      i['quantity'],
+      i['unit'],
+      i['rate'],
+      i['amount'],
+      q['gst_percent'],
+      q['total'],
+      q['status'],
+    ]);
+  }
+
+  await _writeToFile(path, excel);
+}
+
+  Future<List<Map<String, dynamic>>> getAllCycles() async {
+  final db = await DatabaseHelper.instance.database;
+  return await db.query('excel_cycles', orderBy: 'created_at DESC');
+}
+
+  Future<Map<String, dynamic>?> getActiveCycle() async {
+  final db = await DatabaseHelper.instance.database;
+  final r = await db.query('excel_cycles', where: 'is_active=1', limit: 1);
+  return r.isEmpty ? null : r.first;
+}
+
+  Future<Map<String, List<List<dynamic>>>> readForView(String path) async {
+  final excel = await _readFile(path);
+  if (excel == null) return {};
+
+  final Map<String, List<List<dynamic>>> data = {};
+
+  for (var table in excel.tables.keys) {
+    final sheet = excel.tables[table];
+    if (sheet == null) continue;
+
+    data[table] = sheet.rows.map((row) {
+      return row.map((cell) => cell?.value).toList();
+    }).toList();
+  }
+
+  return data;
+}
+  
 }
