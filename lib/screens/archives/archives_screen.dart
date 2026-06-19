@@ -52,43 +52,189 @@ class _ArchivesScreenState extends State<ArchivesScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => _ExcelViewerScreen(cycle: cycle)));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.get('archives'))),
-      body: Column(children: [
-        Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 4), child: DateRangeFilter(onChanged: (s, e) => setState(() { _fs = s; _fe = e; }))),
-        Expanded(child: _loading
-            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-            : _filtered.isEmpty
-                ? EmptyState(message: AppStrings.get('no_data'))
-                : ListView.builder(padding: const EdgeInsets.fromLTRB(16, 4, 16, 16), itemCount: _filtered.length, itemBuilder: (ctx, i) {
-                    final c = _filtered[i];
-                    final isActive = (c['is_active'] as int) == 1;
-                    final file = File(c['file_path']);
-                    return Card(margin: const EdgeInsets.only(bottom: 12), child: Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        const Icon(Icons.description_rounded, color: AppColors.success, size: 22),
-                        const SizedBox(width: 10),
-                        Expanded(child: Text(c['file_name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13), maxLines: 2)),
-                        if (isActive) InfoChip(label: AppStrings.get('active_cycle'), color: AppColors.success),
-                      ]),
-                      const SizedBox(height: 8),
-                      FutureBuilder<FileStat>(future: file.exists().then((e) => e ? file.stat() : Future.value(FileStat.statSync('/'))), builder: (ctx, snap) {
-                        final size = snap.data != null ? '${(snap.data!.size / 1024).toStringAsFixed(0)} KB' : '...';
-                        return Text('${DateFormat('dd MMM').format(DateTime.parse(c['start_date']))} - ${DateFormat('dd MMM yyyy').format(DateTime.parse(c['end_date']))}  ·  $size', style: const TextStyle(fontSize: 11, color: Colors.grey));
-                      }),
-                      const SizedBox(height: 10),
-                      Row(children: [
-                        Expanded(child: OutlinedButton.icon(onPressed: () => _viewFile(c), icon: const Icon(Icons.visibility_rounded, size: 16), label: Text(AppStrings.get('view_file')), style: OutlinedButton.styleFrom(foregroundColor: AppColors.info, side: const BorderSide(color: AppColors.info), padding: const EdgeInsets.symmetric(vertical: 8)))),
-                        const SizedBox(width: 10),
-                        Expanded(child: ElevatedButton.icon(onPressed: () => _download(c), icon: const Icon(Icons.download_rounded, size: 16), label: Text(AppStrings.get('download')), style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, padding: const EdgeInsets.symmetric(vertical: 8)))),
-                      ]),
-                    ]));
-                  })),
-      ]),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(AppStrings.get('archives')),
+    ),
+    body: Column(
+      children: [
+        // Date Filter
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: DateRangeFilter(
+            onChanged: (s, e) {
+              setState(() {
+                _fs = s;
+                _fe = e;
+              });
+            },
+          ),
+        ),
+
+        // Content
+        Expanded(
+          child: _loading
+              ? const Center(
+                  child: CircularProgressIndicator(), // ✅ FIXED (removed color error)
+                )
+              : _filtered.isEmpty
+                  ? EmptyState(
+                      message: AppStrings.get('no_data'),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      itemCount: _filtered.length,
+                      itemBuilder: (ctx, i) {
+                        final c = _filtered[i];
+                        final isActive = (c['is_active'] as int) == 1;
+                        final file = File(c['file_path']);
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header Row
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.description_rounded,
+                                      color: AppColors.success,
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    // File Name
+                                    Expanded(
+                                      child: Text(
+                                        c['file_name'] ?? '',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+
+                                    // Active Chip
+                                    if (isActive)
+                                      InfoChip(
+                                        label: AppStrings.get('active_cycle'),
+                                        color: AppColors.success,
+                                      ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                // File Info (Size + Date)
+                                FutureBuilder<bool>(
+                                  future: file.exists(),
+                                  builder: (context, existsSnap) {
+                                    if (!existsSnap.hasData) {
+                                      return const Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey,
+                                        ),
+                                      );
+                                    }
+
+                                    if (!existsSnap.data!) {
+                                      return const Text(
+                                        'File not found',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.red,
+                                        ),
+                                      );
+                                    }
+
+                                    return FutureBuilder<FileStat>(
+                                      future: file.stat(),
+                                      builder: (context, statSnap) {
+                                        final size = statSnap.hasData
+                                            ? '${(statSnap.data!.size / 1024).toStringAsFixed(0)} KB'
+                                            : '...';
+
+                                        return Text(
+                                          '${DateFormat('dd MMM').format(DateTime.parse(c['start_date']))}'
+                                          ' - '
+                                          '${DateFormat('dd MMM yyyy').format(DateTime.parse(c['end_date']))}'
+                                          '  ·  $size',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                // Buttons
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        onPressed: () => _viewFile(c),
+                                        icon: const Icon(
+                                          Icons.visibility_rounded,
+                                          size: 16,
+                                        ),
+                                        label: Text(
+                                          AppStrings.get('view_file'),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppColors.info,
+                                          side: const BorderSide(
+                                            color: AppColors.info,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        onPressed: () => _download(c),
+                                        icon: const Icon(
+                                          Icons.download_rounded,
+                                          size: 16,
+                                        ),
+                                        label: Text(
+                                          AppStrings.get('download'),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.success,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ExcelViewerScreen extends StatefulWidget {
