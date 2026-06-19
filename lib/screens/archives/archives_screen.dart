@@ -57,7 +57,13 @@ class _ArchivesScreenState extends State<ArchivesScreen> {
   }
 
   Future<void> _viewFile(Map<String, dynamic> cycle) async {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => _ExcelViewerScreen(cycle: cycle)));
+    //Navigator.push(context, MaterialPageRoute(builder: (_) => _ExcelViewerScreen(cycle: cycle)));
+      Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => ArchivesScreen(cycle: c), // ✅ PASS DATA
+    ),
+   );
   }
 
 @override
