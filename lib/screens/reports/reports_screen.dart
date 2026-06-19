@@ -1,17 +1,14 @@
+import 'package:factoryflow/utils/app_theme.dart';
+//import 'package:factoryflow/utils/app_colors.dart';
 import 'dart:io';
 import 'package:excel/excel.dart' as ex;
-//import 'package:flutter/material.dart' hide Border;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../database/database_helper.dart';
-import 'package:factoryflow/utils/app_theme.dart';
 import '../../utils/app_strings.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-//import 'package:factoryflow/utils/app_colors.dart';
 
 num _num(double v) => v;
 
@@ -132,17 +129,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
       final sheet = excel['Report'];
 
       sheet.appendRow([
-         'Period',
-         'Sales ₹',
-         'Purchase ₹',
-         'Panel Production',
-         'Column Production',
-         'Transport Cost ₹',
+        'Period',
+        'Sales ₹',
+        'Purchase ₹',
+        'Panel Production',
+        'Column Production',
+        'Transport Cost ₹',
       ]);
 
       for (int i = 0; i < _labels.length; i++) {
         sheet.appendRow([
-           _labels[i],
+          _labels[i],
           _num(_salesD[i]),
           _num(_purchD[i]),
           _num(_panelD[i]),
@@ -179,12 +176,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Center(
-          child:
-              CircularProgressIndicator(
-                   color: AppColors.primary,
-                  );
-                 }
+      return Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+        ),
+      );
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
