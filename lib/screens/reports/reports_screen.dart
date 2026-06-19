@@ -8,6 +8,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../database/database_helper.dart';
 import '../../utils/app_theme.dart';
 import '../../utils/app_strings.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 
 num _num(double v) => v;
 
