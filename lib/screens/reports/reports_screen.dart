@@ -128,17 +128,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
       final sheet = excel['Report'];
 
       sheet.appendRow([
-        CellValue('Period'),
-        CellValue('Sales ₹'),
-        CellValue('Purchase ₹'),
-        CellValue('Panel Production'),
-        CellValue('Column Production'),
-        CellValue('Transport Cost ₹'),
+         TextCellValue('Period'),
+         TextCellValue('Sales ₹'),
+         TextCellValue('Purchase ₹'),
+         TextCellValue('Panel Production'),
+         TextCellValue('Column Production'),
+         TextCellValue('Transport Cost ₹'),
       ]);
 
       for (int i = 0; i < _labels.length; i++) {
         sheet.appendRow([
-          CellValue(_labels[i]),
+           TextCellValue(_labels[i]),
           _num(_salesD[i]),
           _num(_purchD[i]),
           _num(_panelD[i]),
