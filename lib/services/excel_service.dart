@@ -125,7 +125,7 @@ class ExcelService {
     final sheet = excel['Stock'];
     sheet.appendRow([const TextCellValue('Product'),const TextCellValue('Size'),const TextCellValue('Quantity')]);
     for (var r in await db.query('stock')) {
-      sheet.appendRow([TextCellValue(r['product_name'].toString()),TextCellValue(r['size']?.toString()??''),DoubleCellValue((r['quantity'] as num).toDouble())]);
+      sheet.appendRow([TextCellValue(r['product_name'].toString()),TextCellValue(r['size']?.toString()??''),TextCellValue((r['quantity'] as num).toString())]);
     }
     await _writeToFile(path, excel);
   }
