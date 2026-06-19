@@ -148,41 +148,150 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
     _load();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    double totalEarnings = 0, totalItems = 0;
-    for (var p in _filtered) { totalEarnings += (p['total_amount'] as num).toDouble(); for (var i in (_itemsMap[p['id']] ?? [])) totalItems += (i['quantity'] as num).toDouble(); }
+ @override
+Widget build(BuildContext context) {
+  double totalEarnings = 0, totalItems = 0;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.worker['name'] ?? '')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : Column(children: [
-              Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 4), child: DateRangeFilter(onChanged: (s, e) { setState(() { _fs = s; _fe = e; _applyFilter(); }); })),
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Card(child: Padding(padding: const EdgeInsets.all(14), child: Column(children: [
-                StatRow(label: AppStrings.get('total_earnings'), value: '₹${totalEarnings.toStringAsFixed(0)}', valueColor: AppColors.success),
-                StatRow(label: AppStrings.get('total_items'), value: '${totalItems.toStringAsFixed(0)} pcs'),
-                StatRow(label: AppStrings.get('history'), value: '${_filtered.length} entries'),
-              ])))),
-              Expanded(child: _filtered.isEmpty
-                  ? EmptyState(message: AppStrings.get('no_data'))
-                  : ListView.builder(padding: const EdgeInsets.all(16), itemCount: _filtered.length, itemBuilder: (ctx, i) {
-                      final p = _filtered[i];
-                      final items = _itemsMap[p['id']] ?? [];
-                      return Card(margin: const EdgeInsets.only(bottom: 10), child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Text(fmtDate(p['date']), style: const TextStyle(fontWeight: FontWeight.w700)),
-                          Row(children: [
-                            Text('₹${(p['total_amount'] as num).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.success)),
-                            IconButton(onPressed: () => _editEntry(p), icon: const Icon(Icons.edit_rounded, size: 16, color: AppColors.info), padding: EdgeInsets.zero, constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-                          ]),
-                        ]),
-                        ...items.map((it) => Text('• ${it['product_name']}${it['size'] != null ? ' (${it['size']})' : ''}: ${(it['quantity'] as num).toStringAsFixed(0)} pcs × ₹${(it['rate'] as num).toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.grey))),
-                      ]));
-                    })),
-            ]),
-    );
+  for (var p in _filtered) {
+    totalEarnings += (p['total_amount'] as num).toDouble();
+
+    for (var i in (_itemsMap[p['id']] ?? [])) {
+      totalItems += (i['quantity'] as num).toDouble();
+    }
   }
+
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.worker['name'] ?? ''),
+    ),
+    body: _loading
+        ? const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
+          )
+        : Column(
+            children: [
+              // 📅 Date Filter
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: DateRangeFilter(
+                  onChanged: (s, e) {
+                    setState(() {
+                      _fs = s;
+                      _fe = e;
+                      _applyFilter();
+                    });
+                  },
+                ),
+              ),
+
+              // 📊 Stats Card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      children: [
+                        StatRow(
+                          label: AppStrings.get('total_earnings'),
+                          value: '₹${totalEarnings.toStringAsFixed(0)}',
+                          valueColor: AppColors.success,
+                        ),
+                        StatRow(
+                          label: AppStrings.get('total_items'),
+                          value: '${totalItems.toStringAsFixed(0)} pcs',
+                        ),
+                        StatRow(
+                          label: AppStrings.get('history'),
+                          value: '${_filtered.length} entries',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // 📋 List
+              Expanded(
+                child: _filtered.isEmpty
+                    ? EmptyState(
+                        message: AppStrings.get('no_data'),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _filtered.length,
+                        itemBuilder: (ctx, i) {
+                          final p = _filtered[i];
+                          final items = _itemsMap[p['id']] ?? [];
+
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 🔹 Header Row
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        fmtDate(p['date']),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '₹${(p['total_amount'] as num).toStringAsFixed(0)}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.success,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () => _editEntry(p),
+                                            icon: const Icon(
+                                              Icons.edit_rounded,
+                                              size: 16,
+                                              color: AppColors.info,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints:
+                                                const BoxConstraints(
+                                              minWidth: 28,
+                                              minHeight: 28,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+
+                                  // 🔹 Items List
+                                  ...items.map(
+                                    (it) => Text(
+                                      '• ${it['product_name']}${it['size'] != null ? ' (${it['size']})' : ''}: ${(it['quantity'] as num).toStringAsFixed(0)} pcs × ₹${(it['rate'] as num).toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+  );
 }
 
 class _EditProductionEntry extends StatefulWidget {
