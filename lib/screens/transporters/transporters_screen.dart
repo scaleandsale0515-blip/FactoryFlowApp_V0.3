@@ -157,56 +157,273 @@ class _TransporterDetailScreenState extends State<TransporterDetailScreen> {
     _load();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    double totalRent = 0;
-    for (var t in _filtered) totalRent += (t['rent'] as num).toDouble();
+@override
+Widget build(BuildContext context) {
+  double totalRent = 0;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.transporter['name'] ?? '')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : Column(children: [
-              Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 8), child: Row(children: ['All','Date','Week','Month'].map((m) => Expanded(child: GestureDetector(
-                onTap: () async {
-                  if (m == 'All') { setState(() { _filterMode = 'All'; _selectedDate = null; _applyFilter(); }); return; }
-                  final d = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2020), lastDate: DateTime.now());
-                  if (d != null) setState(() { _filterMode = m; _selectedDate = d; _applyFilter(); });
-                },
-                child: Container(margin: const EdgeInsets.symmetric(horizontal: 2), padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(color: _filterMode == m ? AppColors.primary.withOpacity(0.15) : Colors.transparent, borderRadius: BorderRadius.circular(8), border: Border.all(color: _filterMode == m ? AppColors.primary : AppColors.darkBorder)),
-                  child: Text(m, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _filterMode == m ? AppColors.primary : Colors.grey))),
-              ))).toList())),
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Card(child: Padding(padding: const EdgeInsets.all(14), child: Column(children: [
-                StatRow(label: AppStrings.get('total_trips'), value: '${_filtered.length}'),
-                StatRow(label: AppStrings.get('total_rent'), value: '₹${totalRent.toStringAsFixed(0)}', valueColor: AppColors.success),
-              ])))),
-              const SizedBox(height: 10),
-              Expanded(child: _filtered.isEmpty
-                  ? EmptyState(message: AppStrings.get('no_data'))
-                  : ListView.builder(padding: const EdgeInsets.all(16), itemCount: _filtered.length, itemBuilder: (ctx, i) {
-                      final t = _filtered[i];
-                      final items = _itemsMap[t['id']] ?? [];
-                      return Card(margin: const EdgeInsets.only(bottom: 10), child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Text(fmtDate(t['date']), style: const TextStyle(fontWeight: FontWeight.w700)),
-                          Row(children: [
-                            Text('₹${(t['rent'] as num).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.success)),
-                            IconButton(onPressed: () => _editTrip(t), icon: const Icon(Icons.edit_rounded, size: 16, color: AppColors.info), padding: EdgeInsets.zero, constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-                          ]),
-                        ]),
-                        const SizedBox(height: 4),
-                        Row(children: [
-                          if ((t['location'] ?? '').toString().isNotEmpty) Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('📍 ${AppStrings.get('delivery_location')}', style: const TextStyle(fontSize: 10, color: Colors.grey)), Text(t['location'], style: const TextStyle(fontSize: 13))])),
-                          if ((t['client_name'] ?? '').toString().isNotEmpty) Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('👤 ${AppStrings.get('client')}', style: const TextStyle(fontSize: 10, color: Colors.grey)), Text(t['client_name'], style: const TextStyle(fontSize: 13))])),
-                        ]),
-                        if ((t['vehicle'] ?? '').toString().isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text('🚛 ${t['vehicle']}${(t['vehicle_number'] ?? '').toString().isNotEmpty ? ' · ${t['vehicle_number']}' : ''}', style: const TextStyle(fontSize: 12, color: Colors.grey))),
-                        ...items.map((it) => Text('• ${it['product_name']}${it['size'] != null ? ' (${it['size']})' : ''}: ${(it['quantity'] as num).toStringAsFixed(0)} pcs', style: const TextStyle(fontSize: 12, color: Colors.grey))),
-                      ]));
-                    })),
-            ]),
-    );
+  for (var t in _filtered) {
+    totalRent += (t['rent'] as num).toDouble();
   }
+
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.transporter['name'] ?? ''),
+    ),
+    body: _loading
+        ? const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
+          )
+        : Column(
+            children: [
+              // 🔹 Filter Buttons
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Row(
+                  children: ['All', 'Date', 'Week', 'Month']
+                      .map(
+                        (m) => Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              if (m == 'All') {
+                                setState(() {
+                                  _filterMode = 'All';
+                                  _selectedDate = null;
+                                  _applyFilter();
+                                });
+                                return;
+                              }
+
+                              final d = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime.now(),
+                              );
+
+                              if (d != null) {
+                                setState(() {
+                                  _filterMode = m;
+                                  _selectedDate = d;
+                                  _applyFilter();
+                                });
+                              }
+                            },
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 2),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: _filterMode == m
+                                    ? AppColors.primary.withOpacity(0.15)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: _filterMode == m
+                                      ? AppColors.primary
+                                      : AppColors.darkBorder,
+                                ),
+                              ),
+                              child: Text(
+                                m,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: _filterMode == m
+                                      ? AppColors.primary
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+
+              // 🔹 Stats Card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      children: [
+                        StatRow(
+                          label: AppStrings.get('total_trips'),
+                          value: '${_filtered.length}',
+                        ),
+                        StatRow(
+                          label: AppStrings.get('total_rent'),
+                          value: '₹${totalRent.toStringAsFixed(0)}',
+                          valueColor: AppColors.success,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // 🔹 List
+              Expanded(
+                child: _filtered.isEmpty
+                    ? EmptyState(
+                        message: AppStrings.get('no_data'),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _filtered.length,
+                        itemBuilder: (ctx, i) {
+                          final t = _filtered[i];
+                          final items = _itemsMap[t['id']] ?? [];
+
+                          return Card(
+                            margin:
+                                const EdgeInsets.only(bottom: 10),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  // 🔹 Header Row
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        fmtDate(t['date']),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '₹${(t['rent'] as num).toStringAsFixed(0)}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.success,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () =>
+                                                _editTrip(t),
+                                            icon: const Icon(
+                                              Icons.edit_rounded,
+                                              size: 16,
+                                              color: AppColors.info,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            constraints:
+                                                const BoxConstraints(
+                                              minWidth: 28,
+                                              minHeight: 28,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 4),
+
+                                  // 🔹 Location + Client
+                                  Row(
+                                    children: [
+                                      if ((t['location'] ?? '')
+                                          .toString()
+                                          .isNotEmpty)
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment
+                                                    .start,
+                                            children: [
+                                              Text(
+                                                '📍 ${AppStrings.get('delivery_location')}',
+                                                style: const TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.grey),
+                                              ),
+                                              Text(
+                                                t['location'],
+                                                style:
+                                                    const TextStyle(
+                                                        fontSize: 13),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if ((t['client_name'] ?? '')
+                                          .toString()
+                                          .isNotEmpty)
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment
+                                                    .start,
+                                            children: [
+                                              Text(
+                                                '👤 ${AppStrings.get('client')}',
+                                                style: const TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.grey),
+                                              ),
+                                              Text(
+                                                t['client_name'],
+                                                style:
+                                                    const TextStyle(
+                                                        fontSize: 13),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+
+                                  // 🔹 Vehicle
+                                  if ((t['vehicle'] ?? '')
+                                      .toString()
+                                      .isNotEmpty)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        '🚛 ${t['vehicle']}${(t['vehicle_number'] ?? '').toString().isNotEmpty ? ' · ${t['vehicle_number']}' : ''}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+
+                                  // 🔹 Items
+                                  ...items.map(
+                                    (it) => Text(
+                                      '• ${it['product_name']}${it['size'] != null ? ' (${it['size']})' : ''}: ${(it['quantity'] as num).toStringAsFixed(0)} pcs',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+  );
 }
 
 class _EditTransportEntry extends StatefulWidget {
