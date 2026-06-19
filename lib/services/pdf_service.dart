@@ -199,8 +199,8 @@ class PdfService {
               if (logo != null) ...[pw.Image(logo, width: 46, height: 46), pw.SizedBox(width: 12)],
               pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
                 pw.Text(company, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                if (addr.isNotEmpty) pw.Text(addr, style: pw.TextStyle(fontSize: 8, color: PdfColors.white60)),
-                if (phone.isNotEmpty) pw.Text(phone, style: pw.TextStyle(fontSize: 8, color: PdfColors.white60)),
+                if (addr.isNotEmpty) pw.Text(addr, style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
+                if (phone.isNotEmpty) pw.Text(phone, style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
               ]),
             ]),
             pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
