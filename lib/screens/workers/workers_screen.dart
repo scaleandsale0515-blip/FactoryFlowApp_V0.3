@@ -7,6 +7,8 @@ import '../../utils/app_theme.dart';
 import '../../utils/app_strings.dart';
 import '../../widgets/common_widgets.dart';
 
+import '../production/edit_production_entry.dart'; // FROM NEW FILE YOU MADE WITH AI.
+
 class WorkersScreen extends StatefulWidget {
   const WorkersScreen({super.key});
   @override
@@ -293,14 +295,15 @@ Widget build(BuildContext context) {
             ],
           ),
   );
-}
+ }
+}  
 
-class _EditProductionEntry extends StatefulWidget {
-  final Map<String, dynamic> prod; final List<Map<String, dynamic>> items;
-  const _EditProductionEntry({required this.prod, required this.items});
-  @override
-  State<_EditProductionEntry> createState() => _EditProductionEntryState();
-}
+//class _EditProductionEntry extends StatefulWidget {
+//  final Map<String, dynamic> prod; final List<Map<String, dynamic>> items;
+//  const _EditProductionEntry({required this.prod, required this.items});
+//  @override
+// State<_EditProductionEntry> createState() => _EditProductionEntryState();
+//}
 
 class _EditProductionEntryState extends State<_EditProductionEntry> {
   late DateTime _date;
