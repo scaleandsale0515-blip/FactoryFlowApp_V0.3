@@ -447,7 +447,8 @@ class _EditTransportEntry extends StatefulWidget {
 
   const _EditTransportEntry({
     Key? key,
-    required this.trip,                  // ✅ ADD
+    //required this.trip,                  // ✅ ADD
+    required this.transporter,            // ✅✅✅✅✅ Here you coment .trip and add .transporter
     required this.items,                 // ✅ ADD
   }) : super(key: key);
 
