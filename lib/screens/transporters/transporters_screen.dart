@@ -443,12 +443,12 @@ class _TransporterDetailScreenState extends State<TransporterDetailScreen> {
 
 class _EditTransportEntry extends StatefulWidget {
   final Map<String, dynamic> trip;        // ✅ ADD
-  final List<dynamic> items;              // ✅ ADD
+  final List<Map<String, dynamic>> items;   // ✅ New ADD
 
   const _EditTransportEntry({
     Key? key,
-    //required this.trip,                  // ✅ ADD
-    required this.transporter,            // ✅✅✅✅✅ Here you coment .trip and add .transporter
+    required this.trip,                  // ✅ ADD
+    //required this.transporter,            // ✅✅✅✅✅ Here you coment .trip and add .transporter
     required this.items,                 // ✅ ADD
   }) : super(key: key);
 
