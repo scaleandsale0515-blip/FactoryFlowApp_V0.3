@@ -24,7 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.factoryflow.app"
-    compileSdk = flutter.compileSdkVersion
+    //compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -39,7 +40,8 @@ android {
     defaultConfig {
         applicationId = "com.factoryflow.app"
         minSdkVersion 21
-        targetSdkVersion flutter.targetSdkVersion
+        //targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
