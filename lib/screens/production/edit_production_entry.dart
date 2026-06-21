@@ -15,7 +15,24 @@ class EditProductionEntry extends StatefulWidget {
     Key? key,
     required this.prod, 
     required this.items})
-    : super(key: key);;
+    : super(key: key);
   @override
   State<EditProductionEntry> createState() => _EditProductionEntryState();
 }
+
+class _EditProductionEntryState extends State<EditProductionEntry> {
+  late DateTime _date;
+  late List<Map<String, dynamic>> _items;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _date = DateTime.parse(widget.prod['date']);
+    _items = widget.items.map((i) => {'product': i['product_name'], 'size': i['size'], 'qty_ctrl': TextEditingController(text: i['quantity'].toString()), 'rate_ctrl': TextEditingController(text: i['rate'].toString())}).toList();
+  }
+}
+
+
+
+  
