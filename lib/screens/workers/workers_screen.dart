@@ -305,7 +305,7 @@ Widget build(BuildContext context) {
 // State<EditProductionEntry> createState() => EditProductionEntryState();
 //}
 
-class EditProductionEntryState extends State<EditProductionEntry> {
+class _EditProductionEntryState extends State<EditProductionEntry> {
   late DateTime _date;
   late List<Map<String, dynamic>> _items;
   bool _saving = false;
