@@ -86,7 +86,7 @@ class _WorkersScreenState extends State<WorkersScreen> {
                     onEdit: () => _addEditDialog(existing: _workers[i]),
                     onDelete: () => _delete(_workers[i]),
                   )),
-      floatingActionButton: FloatingActionButton(onPressed: () => _addEditDialog(), backgroundColor: AppColors.primary, child: const Icon(Icons.add)),
+      floatingActionButton: FloatingActionButton(onPressed: () => _addEditDialog(), backgroundColor: AppColors.primary, child: const Icon(Icons.add))
     );
   }
 }
@@ -147,7 +147,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
   }
 
   Future<void> _editEntry(Map<String, dynamic> prod) async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) => _EditProductionEntry(prod: prod, items: _itemsMap[prod['id']] ?? [])));
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => EditProductionEntry(prod: prod, items: _itemsMap[prod['id']] ?? [])));
     _load();
   }
 
@@ -298,14 +298,14 @@ Widget build(BuildContext context) {
  }
 }  
 
-//class _EditProductionEntry extends StatefulWidget {
+//class EditProductionEntry extends StatefulWidget {
 //  final Map<String, dynamic> prod; final List<Map<String, dynamic>> items;
-//  const _EditProductionEntry({required this.prod, required this.items});
+//  const EditProductionEntry({required this.prod, required this.items});
 //  @override
-// State<_EditProductionEntry> createState() => _EditProductionEntryState();
+// State<EditProductionEntry> createState() => EditProductionEntryState();
 //}
 
-class _EditProductionEntryState extends State<_EditProductionEntry> {
+class EditProductionEntryState extends State<EditProductionEntry> {
   late DateTime _date;
   late List<Map<String, dynamic>> _items;
   bool _saving = false;
