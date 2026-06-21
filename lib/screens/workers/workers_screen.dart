@@ -18,17 +18,14 @@ class WorkersScreen extends StatefulWidget {
 class _WorkersScreenState extends State<WorkersScreen> {
   List<Map<String, dynamic>> _workers = [];
   bool _loading = true;
-
   @override
   void initState() { super.initState(); _load(); }
-
   Future<void> _load() async {
     setState(() => _loading = true);
     final db = await DatabaseHelper.instance.database;
     final w = await db.query('workers', orderBy: 'name');
     if (mounted) setState(() { _workers = w; _loading = false; });
   }
-
   Future<void> _delete(Map<String, dynamic> w) async {
     final confirm = await showConfirmDialog(context);
     if (!confirm) return;
@@ -41,7 +38,6 @@ class _WorkersScreenState extends State<WorkersScreen> {
     await db.delete('workers', where: 'id=?', whereArgs: [w['id']]);
     _load();
   }
-
   Future<void> _addEditDialog({Map<String, dynamic>? existing}) async {
     final nc = TextEditingController(text: existing?['name'] ?? '');
     final pc = TextEditingController(text: existing?['phone'] ?? '');
@@ -71,7 +67,6 @@ class _WorkersScreenState extends State<WorkersScreen> {
     ));
     _load();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,7 +77,7 @@ class _WorkersScreenState extends State<WorkersScreen> {
               : ListView.builder(padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), itemCount: _workers.length,
                   itemBuilder: (ctx, i) => _WorkerCard(
                     worker: _workers[i],
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerDetailScreen(worker: _workers[i], items: _itemsMap[_workers[i]['id']] ?? [])))),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WorkerDetailScreen(worker: _workers[i], items: _itemsMap[_workers[i]['id']] ?? []))),
                     onEdit: () => _addEditDialog(existing: _workers[i]),
                     onDelete: () => _delete(_workers[i]),
                   )),
@@ -131,7 +126,7 @@ class _WorkerDetailScreenState extends State<WorkerDetailScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final db = await DatabaseHelper.instance.database;
-    final prods = await db.query('production', where: 'worker_id=?', whereArgs: [widget.worker['id']], orderBy: 'date DESC');
+    final prods = await db.query('production', where: 'worker_id=?', whereArgs: [widget.prod['id']], orderBy: 'date DESC');
     final Map<int, List<Map<String, dynamic>>> itemsMap = {};
     for (var p in prods) {
       itemsMap[p['id'] as int] = await db.query('production_items', where: 'production_id=?', whereArgs: [p['id']]);
@@ -322,16 +317,16 @@ class _EditProductionEntryState extends State<EditProductionEntry> {
   Future<void> _save() async {
     setState(() => _saving = true);
     final db = await DatabaseHelper.instance.database;
-    final oldItems = await db.query('production_items', where: 'production_id=?', whereArgs: [widget.worker['id']]);
+    final oldItems = await db.query('production_items', where: 'production_id=?', whereArgs: [widget.prod['id']]);
     await StockService.instance.applyProduction(oldItems, reverse: true);
-    await db.delete('production_items', where: 'production_id=?', whereArgs: [widget.worker['id']]);
-    await db.update('production', {'date': DateFormat('yyyy-MM-dd').format(_date), 'total_amount': _total}, where: 'id=?', whereArgs: [widget.worker['id']]);
+    await db.delete('production_items', where: 'production_id=?', whereArgs: [widget.prod['id']]);
+    await db.update('production', {'date': DateFormat('yyyy-MM-dd').format(_date), 'total_amount': _total}, where: 'id=?', whereArgs: [widget.prod['id']]);
     for (var item in _items) {
       final q = double.tryParse(item['qty_ctrl'].text) ?? 0; final r = double.tryParse(item['rate_ctrl'].text) ?? 0;
       if (q <= 0) continue;
-      await db.insert('production_items', {'production_id': widget.worker['id'], 'product_name': item['product'], 'size': item['size'], 'quantity': q, 'rate': r, 'amount': q * r});
+      await db.insert('production_items', {'production_id': widget.prod['id'], 'product_name': item['product'], 'size': item['size'], 'quantity': q, 'rate': r, 'amount': q * r});
     }
-    final newItems = await db.query('production_items', where: 'production_id=?', whereArgs: [widget.worker['id']]);
+    final newItems = await db.query('production_items', where: 'production_id=?', whereArgs: [widget.prod['id']]);
     await StockService.instance.applyProduction(newItems);
     await ExcelService.instance.updateStockSheet();
     if (mounted) Navigator.pop(context);
