@@ -9,7 +9,7 @@ import '../../widgets/common_widgets.dart';
 
 class EditProductionEntry extends StatefulWidget {
   final Map<String, dynamic> prod; final List<Map<String, dynamic>> items;
-  const _EditProductionEntry({required this.prod, required this.items});
+  const EditProductionEntry({required this.prod, required this.items});
   @override
   State<EditProductionEntry> createState() => _EditProductionEntryState();
 }
