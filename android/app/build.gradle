@@ -76,12 +76,6 @@ android {
   //  targetCompatibility JavaVersion.VERSION_1_8
 //}
 
-// ✅ KEEP OUTSIDE android created by AI
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.core:core:1.13.1'
-    }
-}
 
 flutter {
     source = "../.."
@@ -91,4 +85,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.0"
     implementation 'androidx.multidex:multidex:2.0.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    implementation 'com.google.android.material:material:1.11.0'
 }
