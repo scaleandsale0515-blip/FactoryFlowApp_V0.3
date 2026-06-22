@@ -12,7 +12,7 @@ dependencies:
   sqflite: ^2.3.3
   path: ^1.9.0
   pdf: ^3.11.0
-  printing: ^5.13.1
+  printing: ^5.14.3
   excel: ^2.1.0
   share_plus: ^9.0.0
   path_provider: ^2.1.4
