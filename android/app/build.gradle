@@ -79,7 +79,7 @@ android {
 // ✅ KEEP OUTSIDE android created by AI
 configurations.all {
     resolutionStrategy {
-        force 'androidx.core:core:1.12.0'
+        force 'androidx.core:core:1.13.1'
     }
 }
 
